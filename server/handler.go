@@ -8,6 +8,10 @@ import (
 
 // Ping handler
 func Ping(w http.ResponseWriter, r *http.Request) {
-	logger.Info(r)
-	fmt.Fprintf(w, "Pong\n")
+	if r.Method == "GET" {
+		logger.Info(r)
+		fmt.Fprintf(w, "Pong\n")
+	} else {
+		http.NotFound(w, r)
+	}
 }

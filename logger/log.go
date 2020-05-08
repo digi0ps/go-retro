@@ -22,7 +22,7 @@ func Info(content interface{}) {
 
 // Debug : Print [DEBUG] log
 func Debug(content interface{}) {
-	Log("LOG", content)
+	Log("DEBUG", content)
 }
 
 // Error : Prints [ERROR] log
