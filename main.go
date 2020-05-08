@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"go-retro/logger"
 )
 
 func main() {
-	fmt.Println("Hello Go Server")
+	logger.Info("Booting server...")
 }

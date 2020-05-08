@@ -7,6 +7,9 @@ pre:
 	gofmt -w .
 	golint ./...
 
+test:
+	gotest -v -cover ./...
+
 build:
 	go build -o $(TARGET) ./main.go
 
