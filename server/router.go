@@ -1,26 +1,14 @@
 package server
 
 import (
-	"fmt"
-	"go-retro/config"
-	"go-retro/logger"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
-func setupRoutes() {
-	http.HandleFunc("/ping", Ping)
-}
+func setupRoutes() *mux.Router {
+	r := mux.NewRouter()
+	r.HandleFunc("/ping", Ping).Methods(http.MethodGet)
 
-// InitServer sets up routes and starts listening on configured port
-func InitServer() {
-	conf := config.GetConfig()
-	portStr := fmt.Sprintf(":%d", conf.GetPort())
-
-	setupRoutes()
-
-	err := http.ListenAndServe(portStr, nil)
-
-	if err != nil {
-		logger.Error(err)
-	}
+	return r
 }
