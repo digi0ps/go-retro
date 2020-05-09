@@ -1,19 +1,25 @@
 package config
 
-import "testing"
+import (
+	"os"
+	"testing"
 
-func TestGetConfig(t *testing.T) {
-	config := GetConfig()
+	"github.com/stretchr/testify/assert"
+)
 
-	t.Run("getPort should get port", func(t *testing.T) {
-		if expected := config.port; config.GetPort() != expected {
-			t.Error("Config GetPort Failed.")
-		}
-	})
+var testConfigVars = map[string]string{
+	"SERVER_PORT": "3000",
+}
 
-	t.Run("getEnv should get env", func(t *testing.T) {
-		if expected := config.env; config.GetEnv() != expected {
-			t.Error("Config getEnv Failed.")
-		}
+func TestLoadConfig(t *testing.T) {
+	for k, v := range testConfigVars {
+		os.Setenv(k, v)
+		defer os.Unsetenv(k)
+	}
+
+	LoadConfig()
+
+	t.Run("test server config", func(t *testing.T) {
+		assert.Equal(t, Server().GetPort(), 3000)
 	})
 }

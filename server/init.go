@@ -9,8 +9,7 @@ import (
 
 // InitServer sets up routes and starts listening on configured port
 func InitServer() {
-	conf := config.GetConfig()
-	portStr := fmt.Sprintf(":%d", conf.GetPort())
+	portStr := fmt.Sprintf(":%d", config.Server().GetPort())
 
 	router := setupRoutes()
 

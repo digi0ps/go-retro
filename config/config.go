@@ -1,25 +1,27 @@
 package config
 
+import "github.com/spf13/viper"
+
 // Config structure to store configuration
 type Config struct {
-	port int
-	env  string
+	server *ServerConfig
 }
 
-// GetPort port
-func (c *Config) GetPort() int {
-	return c.port
+var appConfig *Config
+
+// Server config
+func Server() *ServerConfig {
+	return appConfig.server
 }
 
-// GetEnv env
-func (c *Config) GetEnv() string {
-	return c.env
-}
+// LoadConfig returns a config
+func LoadConfig() {
+	viper.SetConfigFile("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath("./")
+	viper.AutomaticEnv()
 
-// GetConfig returns a config
-func GetConfig() *Config {
-	return &Config{
-		port: 8080,
-		env:  "dev",
+	appConfig = &Config{
+		server: loadServerConfig(),
 	}
 }
