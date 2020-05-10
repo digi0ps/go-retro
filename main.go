@@ -8,8 +8,6 @@ import (
 )
 
 func main() {
-	logger.Info("Starting server...")
-
 	config.LoadConfig()
 	logger.Info("Config loaded...")
 

@@ -10,6 +10,7 @@ import (
 // InitServer sets up routes and starts listening on configured port
 func InitServer() {
 	portStr := fmt.Sprintf(":%d", config.Server().GetPort())
+	logger.Info(fmt.Sprint("Running server on localhost", portStr))
 
 	router := setupRoutes()
 
