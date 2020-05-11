@@ -1,1 +1,8 @@
 SERVER_PORT: 8080
+
+POSTGRES_HOST: "localhost"
+POSTGRES_PORT: 5432
+POSTGRES_USERNAME: "test_guy"
+POSTGRES_PASSWORD: "passpass"
+POSTGRES_DB: "go_retro_dev"
+POSTGRES_SSL: "disable"

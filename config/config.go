@@ -1,14 +1,13 @@
 package config
 
 import (
-	"fmt"
-
 	"github.com/spf13/viper"
 )
 
 // Config structure to store configuration
 type Config struct {
-	server *ServerConfig
+	server   *ServerConfig
+	postgres *PostgresConfig
 }
 
 var appConfig *Config
@@ -18,19 +17,27 @@ func Server() *ServerConfig {
 	return appConfig.server
 }
 
+// Postgres config
+func Postgres() *PostgresConfig {
+	return appConfig.postgres
+}
+
 // LoadConfig returns a config
 func LoadConfig() {
-	viper.SetConfigFile("application.yml")
-	viper.AddConfigPath("./")
+	viper.SetConfigName("application")
+	viper.SetConfigType("yml")
+	viper.AddConfigPath(".")
+	viper.AddConfigPath("..")
 	viper.AutomaticEnv()
 
 	err := viper.ReadInConfig()
 
 	if err != nil {
-		panic(fmt.Errorf("Error reading config file"))
+		panic(err)
 	}
 
 	appConfig = &Config{
-		server: loadServerConfig(),
+		server:   loadServerConfig(),
+		postgres: loadPostgresConfig(),
 	}
 }
