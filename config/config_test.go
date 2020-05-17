@@ -10,12 +10,9 @@ import (
 var testConfigVars = map[string]string{
 	"SERVER_PORT": "3000",
 
-	"POSTGRES_HOST":     "psql",
-	"POSTGRES_PORT":     "5432",
-	"POSTGRES_USERNAME": "admin",
-	"POSTGRES_PASSWORD": "password",
-	"POSTGRES_DB":       "test",
-	"POSTGRES_SSLMODE":  "enable",
+	"MONGO_HOST": "local",
+	"MONGO_PORT": "2222",
+	"MONGO_DB":   "test",
 }
 
 func TestLoadConfig(t *testing.T) {
@@ -34,9 +31,11 @@ func TestLoadConfig(t *testing.T) {
 	})
 
 	t.Run("Test database config", func(t *testing.T) {
-		assert.IsType(&PostgresConfig{}, Postgres())
+		assert.IsType(&MongoConfig{}, Mongo())
 
-		expectedURI := "host=psql port=5432 user=admin dbname=test password=password sslmode=enable"
-		assert.Equal(expectedURI, Postgres().GetAsString())
+		expectedURI := "mongodb://local:2222"
+		assert.Equal(expectedURI, Mongo().GetURI())
+
+		assert.Equal("test", Mongo().GetDatabase())
 	})
 }
