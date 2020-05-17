@@ -13,15 +13,16 @@ func main() {
 	config.LoadConfig()
 	logger.Info("Config loaded...")
 
-	pg := database.NewPostgresDB()
-	pg.CreateConnection()
-	defer pg.CloseConnection()
+	db, closeMongoConnection := database.OpenMongoConnection()
+	defer closeMongoConnection()
 
+	database.AddBoard(db, "TestBoard")
+
+	fmt.Println(db)
 	var wg sync.WaitGroup
 	wg.Add(1)
 
 	go func() {
-		fmt.Println(pg)
 		server.InitServer()
 		wg.Done()
 	}()
