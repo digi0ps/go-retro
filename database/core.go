@@ -2,12 +2,17 @@ package database
 
 import (
 	"context"
+	"errors"
 	"go-retro/config"
 	"go-retro/logger"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+)
+
+var (
+	ErrorNotFound = errors.New("Item not found")
 )
 
 // OpenMongoConnection gives mongo connection
@@ -38,27 +43,4 @@ func OpenMongoConnection() (*mongo.Database, func()) {
 	}
 
 	return client.Database(db), closeConnection
-}
-
-type Board struct {
-	Name      string
-	CreatedAt int64
-}
-
-func AddBoard(db *mongo.Database, name string) error {
-	ctx := context.TODO()
-
-	newBoard := Board{
-		Name:      name,
-		CreatedAt: time.Now().UnixNano(),
-	}
-
-	insertResult, err := db.Collection("boards").InsertOne(ctx, newBoard)
-
-	if err != nil {
-		logger.Error(err)
-	}
-
-	logger.Debug(insertResult.InsertedID)
-	return err
 }
