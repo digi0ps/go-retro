@@ -10,13 +10,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type Board struct {
-	ID        primitive.ObjectID `bson:"_id,omitempty"`
-	Name      string             `bson:"name"`
-	CreatedAt int64              `bson:"created_at"`
-}
-
-func AddBoard(db *mongo.Database, name string) error {
+// CreateBoard creates a board using the name given
+func CreateBoard(db *mongo.Database, name string) error {
 	ctx := context.TODO()
 
 	newBoard := Board{
@@ -35,6 +30,7 @@ func AddBoard(db *mongo.Database, name string) error {
 	return err
 }
 
+// FindBoard finds a board by the ID taken in the argument
 func FindBoard(db *mongo.Database, id string) (board Board, err error) {
 	ctx := context.TODO()
 	idHex, _ := primitive.ObjectIDFromHex(id)
@@ -51,6 +47,7 @@ func FindBoard(db *mongo.Database, id string) (board Board, err error) {
 	return board, nil
 }
 
+// DeleteBoard deletes a board by the string
 func DeleteBoard(db *mongo.Database, id string) error {
 	ctx := context.TODO()
 
