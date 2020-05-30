@@ -6,8 +6,8 @@ import (
 
 // Config structure to store configuration
 type Config struct {
-	server   *ServerConfig
-	postgres *PostgresConfig
+	server *ServerConfig
+	mongo  *MongoConfig
 }
 
 var appConfig *Config
@@ -17,9 +17,9 @@ func Server() *ServerConfig {
 	return appConfig.server
 }
 
-// Postgres config
-func Postgres() *PostgresConfig {
-	return appConfig.postgres
+// Mongo config
+func Mongo() *MongoConfig {
+	return appConfig.mongo
 }
 
 // LoadConfig returns a config
@@ -37,7 +37,7 @@ func LoadConfig() {
 	}
 
 	appConfig = &Config{
-		server:   loadServerConfig(),
-		postgres: loadPostgresConfig(),
+		server: loadServerConfig(),
+		mongo:  loadMongoConfig(),
 	}
 }

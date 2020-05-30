@@ -1,27 +1,39 @@
 package main
 
 import (
-	"fmt"
 	"go-retro/config"
 	"go-retro/database"
+	"go-retro/database/mongodb"
 	"go-retro/logger"
 	"go-retro/server"
 	"sync"
 )
 
+func testDatabase(db database.Service) {
+	err := db.OpenConnection()
+	if err != nil {
+		logger.Info("Cant open database connection")
+		panic(err)
+	}
+	defer db.CloseConnection()
+
+	boardID, _ := db.CreateBoard("Refactor Board")
+	columnID, _ := db.CreateColumn(boardID, "What went well")
+	db.CreateCard(boardID, columnID, "I like the Go inteface")
+	db.CreateCard(boardID, columnID, "It's helping me keep things nice")
+}
+
 func main() {
 	config.LoadConfig()
 	logger.Info("Config loaded...")
 
-	pg := database.NewPostgresDB()
-	pg.CreateConnection()
-	defer pg.CloseConnection()
+	mongoInstance := &mongodb.MongoDatabase{}
+	testDatabase(mongoInstance)
 
 	var wg sync.WaitGroup
 	wg.Add(1)
 
 	go func() {
-		fmt.Println(pg)
 		server.InitServer()
 		wg.Done()
 	}()
