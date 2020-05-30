@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"go-retro/config"
+	"go-retro/database/mongodb"
 	"go-retro/logger"
 	"net/http"
 )
@@ -12,7 +13,11 @@ func InitServer() {
 	portStr := fmt.Sprintf(":%d", config.Server().GetPort())
 	logger.Info(fmt.Sprint("Running server on localhost", portStr))
 
-	router := setupRoutes()
+	goRetroDatabase := &mongodb.MongoDatabase{}
+	goRetroDatabase.OpenConnection()
+	defer goRetroDatabase.CloseConnection()
+
+	router := setupRoutes(goRetroDatabase)
 
 	server := &http.Server{
 		Addr:    portStr,

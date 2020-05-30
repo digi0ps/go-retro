@@ -38,7 +38,6 @@ func (mdb *MongoDatabase) FindBoard(id string) (board database.Board, err error)
 	idHex, _ := primitive.ObjectIDFromHex(id)
 
 	cursor := mdb.db.Collection("boards").FindOne(ctx, bson.M{"_id": idHex})
-	err = cursor.Decode(&board)
 
 	if err != nil {
 		// Report: Board not found in database
@@ -46,7 +45,8 @@ func (mdb *MongoDatabase) FindBoard(id string) (board database.Board, err error)
 		return
 	}
 
-	return board, nil
+	err = cursor.Decode(&board)
+	return
 }
 
 // DeleteBoard deletes a board by the string
