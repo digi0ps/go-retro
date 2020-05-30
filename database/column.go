@@ -12,7 +12,7 @@ import (
 )
 
 // CreateColumn creates a column in a board
-func CreateColumn(db *mongo.Database, boardID string, columnName string) (string, error) {
+func CreateColumn(db *mongo.Database, boardID, columnName string) (string, error) {
 	ctx := context.TODO()
 
 	boardIDHex, _ := primitive.ObjectIDFromHex(boardID)
