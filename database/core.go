@@ -26,11 +26,13 @@ func OpenMongoConnection() (*mongo.Database, func()) {
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
 		logger.Error(err)
+		panic(err)
 	}
 
 	err = client.Ping(ctx, nil)
 	if err != nil {
 		logger.Error(err)
+		panic(err)
 	}
 
 	logger.Info("Connected to MongoDB")
