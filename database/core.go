@@ -1,48 +1,50 @@
 package database
 
 import (
-	"context"
 	"errors"
-	"go-retro/config"
-	"go-retro/logger"
-	"time"
 
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 var (
 	ErrorNotFound = errors.New("Item not found")
 )
 
-// OpenMongoConnection gives mongo connection
-func OpenMongoConnection() (*mongo.Database, func()) {
-	uri := config.Mongo().GetURI()
-	db := config.Mongo().GetDatabase()
-	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+type Card struct {
+	ID        primitive.ObjectID `bson:"_id" json:"id"`
+	Content   string             `bson:"content" json:"content"`
+	CreatedAt int64              `bson:"created_at" json:"created_at"`
+}
 
-	clientOptions := options.Client().ApplyURI(uri)
+type Column struct {
+	ID        primitive.ObjectID `bson:"_id" json:"id"`
+	Name      string             `bson:"name" json:"name"`
+	Cards     []Card             `bson:"cards" json:"cards"`
+	CreatedAt int64              `bson:"created_at" json:"created_at"`
+}
 
-	client, err := mongo.Connect(ctx, clientOptions)
-	if err != nil {
-		logger.Error(err)
-		panic(err)
-	}
+type Board struct {
+	ID        primitive.ObjectID `bson:"_id" json:"id"`
+	Title     string             `bson:"title" json:"title"`
+	Columns   []Column           `bson:"columns" json:"columns"`
+	CreatedAt int64              `bson:"created_at" json:"created_at"`
+}
 
-	err = client.Ping(ctx, nil)
-	if err != nil {
-		logger.Error(err)
-		panic(err)
-	}
-
-	logger.Info("Connected to MongoDB")
-
-	closeConnection := func() {
-		err := client.Disconnect(ctx)
-		if err != nil {
-			logger.Error(err)
-		}
-	}
-
-	return client.Database(db), closeConnection
+// DatabaseService interface contains all the database methods used by this project
+type Service interface {
+	// Connection
+	OpenConnection() error
+	CloseConnection() error
+	// Board
+	CreateBoard(boardName string) (string, error)
+	FindBoard(boardID string) (board Board, err error)
+	DeleteBoard(boardID string) error
+	// Column
+	CreateColumn(boardID, columnName string) (string, error)
+	UpdateColumn(boardID, columnID, newName string) error
+	DeleteColumn(boardID, columnID string) error
+	// Cards
+	CreateCard(boardID, columnID, content string) (string, error)
+	UpdateCard(boardID, columnID, cardID, newContent string) error
+	DeleteCard(boardID, columnID, cardID string) error
 }

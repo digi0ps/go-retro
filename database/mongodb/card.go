@@ -1,21 +1,21 @@
-package database
+package mongodb
 
 import (
 	"context"
+	"go-retro/database"
 	"go-retro/logger"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // CreateCard creates a new card in a column
-func CreateCard(db *mongo.Database, boardID, columnID, content string) (string, error) {
+func (mdb *MongoDatabase) CreateCard(boardID, columnID, content string) (string, error) {
 	ctx := context.TODO()
 
-	newCard := Card{
+	newCard := database.Card{
 		ID:        primitive.NewObjectID(),
 		Content:   content,
 		CreatedAt: time.Now().Unix(),
@@ -27,7 +27,7 @@ func CreateCard(db *mongo.Database, boardID, columnID, content string) (string, 
 	filterBson := bson.M{"_id": boardIDHex, "columns._id": columnIDHex}
 	updateBson := bson.M{"$addToSet": bson.M{"columns.$.cards": newCard}}
 
-	result := db.Collection("boards").FindOneAndUpdate(ctx, filterBson, updateBson)
+	result := mdb.db.Collection("boards").FindOneAndUpdate(ctx, filterBson, updateBson)
 	if result.Err() != nil {
 		logger.Error(result.Err())
 	}
@@ -36,7 +36,7 @@ func CreateCard(db *mongo.Database, boardID, columnID, content string) (string, 
 }
 
 // UpdateCard updates a card's name
-func UpdateCard(db *mongo.Database, boardID, columnID, cardID, newContent string) error {
+func (mdb *MongoDatabase) UpdateCard(boardID, columnID, cardID, newContent string) error {
 	ctx := context.TODO()
 
 	boardIDHex, _ := primitive.ObjectIDFromHex(boardID)
@@ -51,7 +51,7 @@ func UpdateCard(db *mongo.Database, boardID, columnID, cardID, newContent string
 		},
 	)
 
-	result := db.Collection("boards").FindOneAndUpdate(ctx, filterBson, updateBson, opts)
+	result := mdb.db.Collection("boards").FindOneAndUpdate(ctx, filterBson, updateBson, opts)
 	if result.Err() != nil {
 		logger.Error(result.Err())
 	}
@@ -60,7 +60,7 @@ func UpdateCard(db *mongo.Database, boardID, columnID, cardID, newContent string
 }
 
 // DeleteCard deletes a card
-func DeleteCard(db *mongo.Database, boardID, columnID, cardID string) error {
+func (mdb *MongoDatabase) DeleteCard(boardID, columnID, cardID string) error {
 	ctx := context.TODO()
 
 	boardIDHex, _ := primitive.ObjectIDFromHex(boardID)
@@ -70,7 +70,7 @@ func DeleteCard(db *mongo.Database, boardID, columnID, cardID string) error {
 	filterBson := bson.M{"_id": boardIDHex, "columns._id": columnIDHex}
 	updateBson := bson.M{"$pull": bson.M{"columns.$.cards": bson.M{"_id": cardIDHex}}}
 
-	result := db.Collection("boards").FindOneAndUpdate(ctx, filterBson, updateBson)
+	result := mdb.db.Collection("boards").FindOneAndUpdate(ctx, filterBson, updateBson)
 	if result.Err() != nil {
 		logger.Error(result.Err())
 	}

@@ -1,26 +1,26 @@
-package database
+package mongodb
 
 import (
 	"context"
+	"go-retro/database"
 	"go-retro/logger"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // CreateColumn creates a column in a board
-func CreateColumn(db *mongo.Database, boardID, columnName string) (string, error) {
+func (mdb *MongoDatabase) CreateColumn(boardID, columnName string) (string, error) {
 	ctx := context.TODO()
 
 	boardIDHex, _ := primitive.ObjectIDFromHex(boardID)
 
-	newColumn := Column{
+	newColumn := database.Column{
 		ID:        primitive.NewObjectID(),
 		Name:      columnName,
-		Cards:     []Card{},
+		Cards:     []database.Card{},
 		CreatedAt: time.Now().UnixNano(),
 	}
 
@@ -31,7 +31,7 @@ func CreateColumn(db *mongo.Database, boardID, columnName string) (string, error
 		ReturnDocument: &after,
 	}
 
-	result := db.Collection("boards").FindOneAndUpdate(ctx, filterBson, updateBson, &opts)
+	result := mdb.db.Collection("boards").FindOneAndUpdate(ctx, filterBson, updateBson, &opts)
 	if result.Err() != nil {
 		logger.Error(result.Err())
 	}
@@ -42,7 +42,7 @@ func CreateColumn(db *mongo.Database, boardID, columnName string) (string, error
 }
 
 // UpdateColumn updates a column's name
-func UpdateColumn(db *mongo.Database, boardID string, columnID string, newName string) error {
+func (mdb *MongoDatabase) UpdateColumn(boardID string, columnID string, newName string) error {
 	ctx := context.TODO()
 
 	boardIDHex, _ := primitive.ObjectIDFromHex(boardID)
@@ -51,7 +51,7 @@ func UpdateColumn(db *mongo.Database, boardID string, columnID string, newName s
 	filterBson := bson.M{"_id": boardIDHex, "columns._id": columnIDHex}
 	updateBson := bson.M{"$set": bson.M{"columns.$.name": newName}}
 
-	result := db.Collection("boards").FindOneAndUpdate(ctx, filterBson, updateBson)
+	result := mdb.db.Collection("boards").FindOneAndUpdate(ctx, filterBson, updateBson)
 	if result.Err() != nil {
 		logger.Error(result.Err())
 	}
@@ -60,7 +60,7 @@ func UpdateColumn(db *mongo.Database, boardID string, columnID string, newName s
 }
 
 // DeleteColumn deletes a column with the boardID and columnID
-func DeleteColumn(db *mongo.Database, boardID string, columnID string) error {
+func (mdb *MongoDatabase) DeleteColumn(boardID string, columnID string) error {
 	ctx := context.TODO()
 
 	boardIDHex, _ := primitive.ObjectIDFromHex(boardID)
@@ -69,7 +69,7 @@ func DeleteColumn(db *mongo.Database, boardID string, columnID string) error {
 	filterBson := bson.M{"_id": boardIDHex}
 	updateBson := bson.M{"$pull": bson.M{"columns": bson.M{"_id": columnIDHex}}}
 
-	result := db.Collection("boards").FindOneAndUpdate(ctx, filterBson, updateBson)
+	result := mdb.db.Collection("boards").FindOneAndUpdate(ctx, filterBson, updateBson)
 	if result.Err() != nil {
 		logger.Error(result.Err())
 	}
