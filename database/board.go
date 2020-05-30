@@ -11,12 +11,13 @@ import (
 )
 
 // CreateBoard creates a board using the name given
-func CreateBoard(db *mongo.Database, name string) error {
+func CreateBoard(db *mongo.Database, name string) (string, error) {
 	ctx := context.TODO()
 
 	newBoard := Board{
 		ID:        primitive.NewObjectID(),
 		Title:     name,
+		Columns:   []Column{},
 		CreatedAt: time.Now().UnixNano(),
 	}
 
@@ -26,8 +27,9 @@ func CreateBoard(db *mongo.Database, name string) error {
 		logger.Error(err)
 	}
 
-	logger.Debug(insertResult.InsertedID)
-	return err
+	objID := insertResult.InsertedID.(primitive.ObjectID)
+
+	return objID.Hex(), err
 }
 
 // FindBoard finds a board by the ID taken in the argument
