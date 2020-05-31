@@ -35,3 +35,21 @@ func (retro *RetroHandler) GetBoard(w http.ResponseWriter, r *http.Request) {
 	writeSuccessResponse(w, board)
 	return
 }
+
+// PutBoard handler
+func (retro *RetroHandler) PutBoard(w http.ResponseWriter, r *http.Request) {
+	logger.Info("Entering Put Board handler")
+	boardTitle := r.FormValue("title")
+
+	boardID, err := retro.Database.CreateBoard(boardTitle)
+	if err != nil {
+		writeErrorResponse(w, "Board could not be created", http.StatusInternalServerError)
+		return
+	}
+
+	res := map[string]string{
+		"board": boardID,
+	}
+
+	writeSuccessResponse(w, res)
+}

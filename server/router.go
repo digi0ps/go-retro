@@ -17,6 +17,7 @@ func setupRoutes(retroDatabase database.Service) *mux.Router {
 	}
 
 	r.HandleFunc("/api/board", handlers.GetBoard).Methods(http.MethodGet)
+	r.HandleFunc("/api/board", handlers.PutBoard).Methods(http.MethodPut)
 
 	return r
 }
