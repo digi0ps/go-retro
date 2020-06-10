@@ -8,6 +8,7 @@
 - [x] Setup REST endpoints
 - [ ] Setup WS endpoint
 - [ ] Setup WS handlers
+- [ ] Swap Columns
 
 ## Minor Tasks
 
