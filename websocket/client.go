@@ -1,6 +1,7 @@
 package websocket
 
 import (
+	"errors"
 	"fmt"
 	"go-retro/logger"
 
@@ -25,7 +26,7 @@ func newClient(hub *Hub, conn *websocket.Conn, boardID string) *client {
 
 func (c *client) readWorker() {
 	defer func() {
-		fmt.Println("Unregistering client.")
+		fmt.Println("Unregistering client from readWorker.")
 		c.hub.unregister <- boardArg{boardID: c.boardID, user: c}
 		c.conn.Close()
 	}()
@@ -56,11 +57,14 @@ func (c *client) writeWorker() {
 				return
 			}
 
-			fmt.Println("Broadcasting message to ", c, msg)
-			fmt.Println("Length of send channel: ", len(c.send))
+			fmt.Println("Broadcasting message to ", c)
 			if err := c.conn.WriteMessage(websocket.TextMessage, msg); err != nil {
 				fmt.Println("Error ", err)
 				return
+			}
+
+			if len(c.send) > 0 {
+				logger.Error(errors.New("Unsent messages in channel"))
 			}
 		}
 	}

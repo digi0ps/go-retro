@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func setupRoutes(retroDatabase database.Service) *mux.Router {
+func setupRoutes(retroDatabase database.Service, boardHub *websocket.Hub) *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc("/ping", handler.Ping).Methods(http.MethodGet)
 
@@ -22,7 +22,11 @@ func setupRoutes(retroDatabase database.Service) *mux.Router {
 	r.HandleFunc("/api/board", handlers.PutBoard).Methods(http.MethodPut)
 
 	// Websocket API Handlers
-	r.HandleFunc("/ws", websocket.InitHandler)
+	socks := websocket.SocketHandler{
+		BoardHub: boardHub,
+	}
+
+	r.HandleFunc("/ws/{board}", socks.InitHandler)
 
 	return r
 }

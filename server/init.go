@@ -5,6 +5,7 @@ import (
 	"go-retro/config"
 	"go-retro/database/mongodb"
 	"go-retro/logger"
+	"go-retro/websocket"
 	"net/http"
 )
 
@@ -17,7 +18,10 @@ func InitServer() {
 	goRetroDatabase.OpenConnection()
 	defer goRetroDatabase.CloseConnection()
 
-	router := setupRoutes(goRetroDatabase)
+	boardHub := websocket.NewHub()
+	go boardHub.Run()
+
+	router := setupRoutes(goRetroDatabase, boardHub)
 
 	server := &http.Server{
 		Addr:    portStr,

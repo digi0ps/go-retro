@@ -16,8 +16,24 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize:  1024,
 }
 
+// SocketHandler implements handler for websocket
+type SocketHandler struct {
+	BoardHub *Hub
+}
+
+// // NewSocketHandler creates a hub, runs it in a separate go routine and returns a SocketHandler
+// func NewSocketHandler() *SocketHandler {
+// 	hub := Hub{}
+
+// 	go hub.run()
+
+// 	return &SocketHandler{
+// 		hub: &hub,
+// 	}
+// }
+
 // InitHandler is responsible for initialising websocket handler
-func InitHandler(boardRoom *Hub, w http.ResponseWriter, r *http.Request) {
+func (s *SocketHandler) InitHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		logger.Error(err)
@@ -28,14 +44,16 @@ func InitHandler(boardRoom *Hub, w http.ResponseWriter, r *http.Request) {
 	}
 
 	boardID := mux.Vars(r)["board"]
-	user := newClient(boardRoom, conn, boardID)
+	user := newClient(s.BoardHub, conn, boardID)
+
+	fmt.Println("In init handler", boardID, user)
 
 	args := boardArg{
 		boardID: boardID,
 		user:    user,
 	}
 
-	boardRoom.register <- args
+	s.BoardHub.register <- args
 
 	go user.readWorker()
 	go user.writeWorker()

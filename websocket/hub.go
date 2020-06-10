@@ -27,7 +27,8 @@ type Hub struct {
 	broadcast  chan broadcastArg
 }
 
-func newHub() *Hub {
+// NewHub creates a new hub with correct defaults
+func NewHub() *Hub {
 	return &Hub{
 		boards:     make(map[string]*board),
 		register:   make(chan boardArg),
@@ -36,10 +37,14 @@ func newHub() *Hub {
 	}
 }
 
-func (h *Hub) run() {
+// Run Starts listening to channels
+func (h *Hub) Run() {
+	fmt.Println("\nStarting hub...")
+
 	for {
 		select {
 		case arg := <-h.register:
+			fmt.Println("Hello", arg)
 			h.registerUser(arg.boardID, arg.user)
 		case arg := <-h.unregister:
 			h.unregisterUser(arg.boardID, arg.user)
@@ -51,6 +56,7 @@ func (h *Hub) run() {
 
 // registerUser adds an user to a board (creating board if not already present)
 func (h *Hub) registerUser(boardID string, user *client) {
+	fmt.Println("\n Registering client for board", user, boardID)
 	if target, ok := h.boards[boardID]; ok {
 		target.users[user] = true
 	} else {
@@ -69,8 +75,10 @@ func (h *Hub) registerUser(boardID string, user *client) {
 
 // unregisterUser removes an user from a board (deleting board if no user present)
 func (h *Hub) unregisterUser(boardID string, user *client) {
+	fmt.Println("\n Unregistering client for board", user, boardID)
 	if target, ok := h.boards[boardID]; ok {
 		delete(target.users, user)
+		close(user.send)
 	} else {
 		logger.Error(fmt.Errorf("Board Unregister: %s board not found", boardID))
 	}

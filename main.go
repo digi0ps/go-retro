@@ -21,4 +21,5 @@ func main() {
 	logger.Info("Server is now running...")
 
 	wg.Wait()
+	logger.Info("Bye")
 }
