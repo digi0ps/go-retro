@@ -10,6 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// MongoDatabase holds the methods for interacting with MongoDB
 type MongoDatabase struct {
 	db *mongo.Database
 }

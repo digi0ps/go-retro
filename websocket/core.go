@@ -21,17 +21,6 @@ type SocketHandler struct {
 	BoardHub *Hub
 }
 
-// // NewSocketHandler creates a hub, runs it in a separate go routine and returns a SocketHandler
-// func NewSocketHandler() *SocketHandler {
-// 	hub := Hub{}
-
-// 	go hub.run()
-
-// 	return &SocketHandler{
-// 		hub: &hub,
-// 	}
-// }
-
 // InitHandler is responsible for initialising websocket handler
 func (s *SocketHandler) InitHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -45,8 +34,6 @@ func (s *SocketHandler) InitHandler(w http.ResponseWriter, r *http.Request) {
 
 	boardID := mux.Vars(r)["board"]
 	user := newClient(s.BoardHub, conn, boardID)
-
-	fmt.Println("In init handler", boardID, user)
 
 	args := boardArg{
 		boardID: boardID,

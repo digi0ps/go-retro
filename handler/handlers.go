@@ -7,6 +7,7 @@ import (
 	"net/http"
 )
 
+// RetroHandler groups all the rest handlers as method so they can share the dependencies
 type RetroHandler struct {
 	Database database.Service
 }

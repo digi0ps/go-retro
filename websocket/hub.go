@@ -18,8 +18,10 @@ type boardArg struct {
 type broadcastArg struct {
 	boardID string
 	message []byte
+	user    *client
 }
 
+// Hub acts as a interface for boards. Clients can push to mentioned channels to perform actions.
 type Hub struct {
 	boards     map[string]*board
 	register   chan boardArg
@@ -39,24 +41,23 @@ func NewHub() *Hub {
 
 // Run Starts listening to channels
 func (h *Hub) Run() {
-	fmt.Println("\nStarting hub...")
+	logger.Info("Starting hub...")
 
 	for {
 		select {
 		case arg := <-h.register:
-			fmt.Println("Hello", arg)
 			h.registerUser(arg.boardID, arg.user)
 		case arg := <-h.unregister:
 			h.unregisterUser(arg.boardID, arg.user)
 		case arg := <-h.broadcast:
-			h.broadcastMsg(arg.boardID, arg.message)
+			h.broadcastMsg(arg.boardID, arg.message, arg.user)
 		}
 	}
 }
 
 // registerUser adds an user to a board (creating board if not already present)
 func (h *Hub) registerUser(boardID string, user *client) {
-	fmt.Println("\n Registering client for board", user, boardID)
+	logger.Info("Registering user for board")
 	if target, ok := h.boards[boardID]; ok {
 		target.users[user] = true
 	} else {
@@ -75,7 +76,7 @@ func (h *Hub) registerUser(boardID string, user *client) {
 
 // unregisterUser removes an user from a board (deleting board if no user present)
 func (h *Hub) unregisterUser(boardID string, user *client) {
-	fmt.Println("\n Unregistering client for board", user, boardID)
+	logger.Info("Removing user from board")
 	if target, ok := h.boards[boardID]; ok {
 		delete(target.users, user)
 		close(user.send)
@@ -85,11 +86,16 @@ func (h *Hub) unregisterUser(boardID string, user *client) {
 }
 
 // broadcastMsg broadcasts a message to a board
-func (h *Hub) broadcastMsg(boardID string, msg []byte) {
+func (h *Hub) broadcastMsg(boardID string, msg []byte, broadcastUser *client) {
 	if target, ok := h.boards[boardID]; ok {
 		for user := range target.users {
-			fmt.Println("Sending msg to: ", user)
-			user.send <- msg
+			if broadcastUser != user {
+				select {
+				case user.send <- msg:
+				default:
+					h.unregisterUser(boardID, user)
+				}
+			}
 		}
 	} else {
 		logger.Error(fmt.Errorf("Board Unregister: %s board not found", boardID))

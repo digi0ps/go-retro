@@ -7,15 +7,18 @@ import (
 )
 
 var (
+	// ErrorNotFound is thrown when an item is not found
 	ErrorNotFound = errors.New("Item not found")
 )
 
+// Card represents the card in the board
 type Card struct {
 	ID        primitive.ObjectID `bson:"_id" json:"id"`
 	Content   string             `bson:"content" json:"content"`
 	CreatedAt int64              `bson:"created_at" json:"created_at"`
 }
 
+// Column represents a group of cards displayed vertically in UI
 type Column struct {
 	ID        primitive.ObjectID `bson:"_id" json:"id"`
 	Name      string             `bson:"name" json:"name"`
@@ -23,6 +26,7 @@ type Column struct {
 	CreatedAt int64              `bson:"created_at" json:"created_at"`
 }
 
+// Board represents an entire group of cards where people can collaborate
 type Board struct {
 	ID        primitive.ObjectID `bson:"_id" json:"id"`
 	Title     string             `bson:"title" json:"title"`
@@ -30,7 +34,7 @@ type Board struct {
 	CreatedAt int64              `bson:"created_at" json:"created_at"`
 }
 
-// DatabaseService interface contains all the database methods used by this project
+// Service interface contains all the database methods used by this project
 type Service interface {
 	// Connection
 	OpenConnection() error

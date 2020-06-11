@@ -4,8 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"go-retro/logger"
+	"time"
 
 	"github.com/gorilla/websocket"
+)
+
+var (
+	writeWait = 5 * time.Second
+	readWait  = 10 * time.Second
 )
 
 type client struct {
@@ -26,22 +32,23 @@ func newClient(hub *Hub, conn *websocket.Conn, boardID string) *client {
 
 func (c *client) readWorker() {
 	defer func() {
-		fmt.Println("Unregistering client from readWorker.")
+		logger.Info("Unregsitering client from readWorker")
 		c.hub.unregister <- boardArg{boardID: c.boardID, user: c}
 		c.conn.Close()
 	}()
 
 	for {
-		mt, message, err := c.conn.ReadMessage()
+		c.conn.SetReadDeadline(time.Now().Add(readWait))
+		_, message, err := c.conn.ReadMessage()
 		if err != nil {
 			logger.Error(err)
 			break
 		}
 
-		fmt.Printf("Message: %s, Type: %v", message, mt)
 		arg := broadcastArg{
 			boardID: c.boardID,
 			message: message,
+			user:    c,
 		}
 		c.hub.broadcast <- arg
 	}
@@ -52,12 +59,11 @@ func (c *client) writeWorker() {
 		select {
 		case msg, ok := <-c.send:
 			if !ok {
-				fmt.Println("Send channel closed")
+				logger.Info("Closing send channel")
 				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
 
-			fmt.Println("Broadcasting message to ", c)
 			if err := c.conn.WriteMessage(websocket.TextMessage, msg); err != nil {
 				fmt.Println("Error ", err)
 				return

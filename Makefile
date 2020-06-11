@@ -3,7 +3,7 @@ TARGET = "./out/$(APPNAME)"
 
 all: pre build run
 
-pre:
+lint:
 	gofmt -w .
 	golint ./...
 
