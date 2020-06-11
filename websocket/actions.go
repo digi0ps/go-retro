@@ -2,7 +2,7 @@ package websocket
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"go-retro/database"
 	"go-retro/logger"
 )
@@ -14,6 +14,12 @@ type Event struct {
 	Timestamp int64                  `json:"timestamp,omitempty"`
 }
 
+var (
+	createCardEvent   = "CREATE_CARD"
+	createColumnEvent = "CREATE_COLUMN"
+	errInvalidEvent   = errors.New("Invalid Event")
+)
+
 func unmarshallMessage(message []byte) (event Event, err error) {
 	err = json.Unmarshal(message, &event)
 	return
@@ -21,6 +27,16 @@ func unmarshallMessage(message []byte) (event Event, err error) {
 
 func processEvent(db database.Service, event Event) error {
 	logger.Info("Processing action")
-	fmt.Println(event)
+	switch event.Type {
+	case createColumnEvent:
+		boardID := event.Payload["board_id"].(string)
+		columnName := event.Payload["column_name"].(string)
+		if boardID != "" && columnName != "" {
+			colID, _ := db.CreateColumn(boardID, columnName)
+			logger.Info("Created Column: " + colID)
+		}
+	default:
+		return errInvalidEvent
+	}
 	return nil
 }

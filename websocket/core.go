@@ -41,7 +41,7 @@ func (s *SocketHandler) InitHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := newClient(s.BoardHub, conn, boardID)
+	user := newClient(s.BoardHub, conn, s.Database, boardID)
 
 	args := boardArg{
 		boardID: boardID,
