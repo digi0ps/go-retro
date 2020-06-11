@@ -45,6 +45,14 @@ func (c *client) readWorker() {
 			break
 		}
 
+		event, err := unmarshallMessage(message)
+		if err != nil {
+			logger.Error(fmt.Errorf("Message not right format"))
+			continue
+		}
+
+		logger.Debug(event)
+
 		arg := broadcastArg{
 			boardID: c.boardID,
 			message: message,
