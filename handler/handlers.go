@@ -24,11 +24,10 @@ func Ping(w http.ResponseWriter, r *http.Request) {
 
 // GetBoard handler
 func (retro *RetroHandler) GetBoard(w http.ResponseWriter, r *http.Request) {
-	logger.Info("Entering Get Board handler")
 	boardID := r.URL.Query().Get("id")
 
 	board, err := retro.Database.FindBoard(boardID)
-	if err != nil {
+	if err == database.ErrorNotFound {
 		writeErrorResponse(w, "Board entity not found", http.StatusNotFound)
 		return
 	}

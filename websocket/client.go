@@ -11,7 +11,7 @@ import (
 
 var (
 	writeWait = 5 * time.Second
-	readWait  = 10 * time.Second
+	readWait  = 60 * time.Second
 )
 
 type client struct {

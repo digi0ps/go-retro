@@ -39,13 +39,12 @@ func (mdb *MongoDatabase) FindBoard(id string) (board database.Board, err error)
 
 	cursor := mdb.db.Collection("boards").FindOne(ctx, bson.M{"_id": idHex})
 
+	err = cursor.Decode(&board)
 	if err != nil {
 		// Report: Board not found in database
 		err = database.ErrorNotFound
-		return
 	}
 
-	err = cursor.Decode(&board)
 	return
 }
 

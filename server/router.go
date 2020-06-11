@@ -24,6 +24,7 @@ func setupRoutes(retroDatabase database.Service, boardHub *websocket.Hub) *mux.R
 	// Websocket API Handlers
 	socks := websocket.SocketHandler{
 		BoardHub: boardHub,
+		Database: retroDatabase,
 	}
 
 	r.HandleFunc("/ws/{board}", socks.InitHandler)
