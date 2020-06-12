@@ -16,7 +16,11 @@ type Event struct {
 
 const (
 	createCardEvent   = "CREATE_CARD"
+	updateCardEvent   = "UPDATE_CARD"
+	deleteCardEvent   = "DELETE_CARD"
 	createColumnEvent = "CREATE_COLUMN"
+	updateColumnEvent = "UPDATE_COLUMN"
+	deleteColumnEvent = "DELETE_COLUMN"
 )
 
 var (
@@ -33,6 +37,11 @@ func makeActionsHandler(db database.Service, boardID string) func(e Event) error
 	actions := make(map[string]func(db database.Service, board string, e Event) error)
 
 	actions[createColumnEvent] = createColumnAction
+	actions[updateColumnEvent] = updateColumnAction
+	actions[deleteColumnEvent] = deleteColumnAction
+	actions[createCardEvent] = createCardAction
+	actions[updateCardEvent] = updateCardAction
+	actions[deleteCardEvent] = deleteCardAction
 
 	return func(e Event) error {
 		handler, ok := actions[e.Type]
@@ -47,8 +56,7 @@ func makeActionsHandler(db database.Service, boardID string) func(e Event) error
 			}
 		}()
 
-		handler(db, boardID, e)
-		return nil
+		return handler(db, boardID, e)
 	}
 }
 
@@ -66,7 +74,6 @@ func createColumnAction(db database.Service, board string, e Event) error {
 
 	colID, err := db.CreateColumn(board, columnName)
 	if err != nil {
-		logger.Error(err)
 		return err
 	}
 
@@ -74,16 +81,67 @@ func createColumnAction(db database.Service, board string, e Event) error {
 	return nil
 }
 
-func createCardAction(db database.Service, board string, e Event) error {
+func updateColumnAction(db database.Service, board string, e Event) error {
 	columnName := getStringOrPanic(e, "column_name")
-	cardContent := getStringOrPanic(e, "content")
+	columnID := getStringOrPanic(e, "column_id")
 
-	colID, err := db.CreateCard(board, columnName, cardContent)
+	err := db.UpdateColumn(board, columnID, columnName)
 	if err != nil {
-		logger.Error(err)
 		return err
 	}
-	logger.Info("Created Column: " + colID)
 
+	logger.Info("Updated Column " + columnID)
+	return nil
+}
+
+func deleteColumnAction(db database.Service, board string, e Event) error {
+	columnID := getStringOrPanic(e, "column_id")
+
+	err := db.DeleteColumn(board, columnID)
+	if err != nil {
+		return err
+	}
+
+	logger.Info("Deleted Column " + columnID)
+	return nil
+}
+
+func createCardAction(db database.Service, board string, e Event) error {
+	columnID := getStringOrPanic(e, "column_id")
+	cardContent := getStringOrPanic(e, "content")
+
+	createdID, err := db.CreateCard(board, columnID, cardContent)
+	if err != nil {
+		return err
+	}
+	logger.Info("Created card: " + createdID)
+
+	return nil
+}
+
+func updateCardAction(db database.Service, board string, e Event) error {
+	columnID := getStringOrPanic(e, "column_id")
+	cardID := getStringOrPanic(e, "card_id")
+	cardContent := getStringOrPanic(e, "content")
+
+	err := db.UpdateCard(board, columnID, cardID, cardContent)
+	if err != nil {
+		return err
+	}
+	logger.Info("Updated Card " + cardID)
+
+	return nil
+}
+
+func deleteCardAction(db database.Service, board string, e Event) error {
+	columnID := getStringOrPanic(e, "column_id")
+	cardID := getStringOrPanic(e, "card_id")
+
+	err := db.DeleteCard(board, columnID, cardID)
+	if err != nil {
+		return err
+	}
+
+	logger.Info("Deleted Card" + cardID)
 	return nil
 }

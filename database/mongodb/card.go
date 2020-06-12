@@ -44,7 +44,7 @@ func (mdb *MongoDatabase) UpdateCard(boardID, columnID, cardID, newContent strin
 	cardIDHex, _ := primitive.ObjectIDFromHex(cardID)
 
 	filterBson := bson.M{"_id": boardIDHex, "columns._id": columnIDHex}
-	updateBson := bson.M{"$addToSet": bson.M{"columns.$.cards.$[c].content": newContent}}
+	updateBson := bson.M{"$set": bson.M{"columns.$.cards.$[c].content": newContent}}
 	opts := options.FindOneAndUpdate().SetArrayFilters(
 		options.ArrayFilters{
 			Filters: []interface{}{bson.M{"c._id": cardIDHex}},

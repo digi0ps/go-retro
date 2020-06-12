@@ -3,7 +3,6 @@ package websocket
 import (
 	"errors"
 	"fmt"
-	"go-retro/database"
 	"go-retro/logger"
 	"time"
 
@@ -16,20 +15,20 @@ var (
 )
 
 type client struct {
-	hub     *Hub
-	conn    *websocket.Conn
-	db      database.Service
-	boardID string
-	send    chan []byte
+	hub           *Hub
+	conn          *websocket.Conn
+	actionHandler func(e Event) error
+	boardID       string
+	send          chan []byte
 }
 
-func newClient(hub *Hub, conn *websocket.Conn, db database.Service, boardID string) *client {
+func newClient(hub *Hub, conn *websocket.Conn, boardID string, ah func(e Event) error) *client {
 	return &client{
-		hub:     hub,
-		conn:    conn,
-		db:      db,
-		boardID: boardID,
-		send:    make(chan []byte, 500),
+		hub:           hub,
+		conn:          conn,
+		actionHandler: ah,
+		boardID:       boardID,
+		send:          make(chan []byte, 500),
 	}
 }
 
@@ -41,7 +40,6 @@ func (c *client) readWorker() {
 	}()
 
 	for {
-		c.conn.SetReadDeadline(time.Now().Add(readWait))
 		_, message, err := c.conn.ReadMessage()
 		if err != nil {
 			logger.Error(err)
@@ -63,7 +61,10 @@ func (c *client) readWorker() {
 		}
 		c.hub.broadcast <- arg
 
-		processEvent(c.db, event)
+		if err := c.actionHandler(event); err != nil {
+			wrapErr := errors.New("[ACTION] " + err.Error())
+			logger.Error(wrapErr)
+		}
 	}
 }
 
