@@ -6,8 +6,8 @@
 - [x] Setup routing using Gorilla Mux
 - [x] Setup Mongo datastore
 - [x] Setup REST endpoints
-- [ ] Setup WS endpoint
-- [ ] Setup WS handlers
+- [x] Setup WS endpoint
+- [x] Setup WS handlers
 - [ ] Swap Columns
 
 ## Minor Tasks

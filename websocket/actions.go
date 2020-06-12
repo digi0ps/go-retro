@@ -21,6 +21,7 @@ const (
 
 var (
 	errInvalidEvent = errors.New("invalid.event")
+	errNoParam      = errors.New("required.param.not.found")
 )
 
 func unmarshallMessage(message []byte) (event Event, err error) {
@@ -29,7 +30,7 @@ func unmarshallMessage(message []byte) (event Event, err error) {
 }
 
 func makeActionsHandler(db database.Service, boardID string) func(e Event) error {
-	actions := make(map[string]func(db database.Service, e Event) error)
+	actions := make(map[string]func(db database.Service, board string, e Event) error)
 
 	actions[createColumnEvent] = createColumnAction
 
@@ -40,19 +41,49 @@ func makeActionsHandler(db database.Service, boardID string) func(e Event) error
 			return errInvalidEvent
 		}
 
-		handler(db, e)
+		defer func() {
+			if r := recover(); r != nil {
+				logger.Error(errNoParam)
+			}
+		}()
+
+		handler(db, boardID, e)
 		return nil
 	}
 }
 
-func createColumnAction(db database.Service, e Event) error {
-	boardID := e.Payload["board_id"].(string)
-	columnName := e.Payload["column_name"].(string)
-
-	if boardID != "" && columnName != "" {
-		colID, _ := db.CreateColumn(boardID, columnName)
-		logger.Info("Created Column: " + colID)
+func getStringOrPanic(e Event, key string) string {
+	v, ok := e.Payload[key]
+	vs := v.(string)
+	if !ok || vs == "" {
+		panic(errNoParam)
 	}
+	return vs
+}
+
+func createColumnAction(db database.Service, board string, e Event) error {
+	columnName := getStringOrPanic(e, "column_name")
+
+	colID, err := db.CreateColumn(board, columnName)
+	if err != nil {
+		logger.Error(err)
+		return err
+	}
+
+	logger.Info("Created Column: " + colID)
+	return nil
+}
+
+func createCardAction(db database.Service, board string, e Event) error {
+	columnName := getStringOrPanic(e, "column_name")
+	cardContent := getStringOrPanic(e, "content")
+
+	colID, err := db.CreateCard(board, columnName, cardContent)
+	if err != nil {
+		logger.Error(err)
+		return err
+	}
+	logger.Info("Created Column: " + colID)
 
 	return nil
 }
