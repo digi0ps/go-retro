@@ -1,9 +1,9 @@
 APPNAME = "go-retro"
 TARGET = "./out/$(APPNAME)"
 
-all: pre build run
+all: lint build run
 
-pre:
+lint:
 	gofmt -w .
 	golint ./...
 
