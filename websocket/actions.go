@@ -14,10 +14,13 @@ type Event struct {
 	Timestamp int64                  `json:"timestamp,omitempty"`
 }
 
-var (
+const (
 	createCardEvent   = "CREATE_CARD"
 	createColumnEvent = "CREATE_COLUMN"
-	errInvalidEvent   = errors.New("Invalid Event")
+)
+
+var (
+	errInvalidEvent = errors.New("invalid.event")
 )
 
 func unmarshallMessage(message []byte) (event Event, err error) {
@@ -25,18 +28,31 @@ func unmarshallMessage(message []byte) (event Event, err error) {
 	return
 }
 
-func processEvent(db database.Service, event Event) error {
-	logger.Info("Processing action")
-	switch event.Type {
-	case createColumnEvent:
-		boardID := event.Payload["board_id"].(string)
-		columnName := event.Payload["column_name"].(string)
-		if boardID != "" && columnName != "" {
-			colID, _ := db.CreateColumn(boardID, columnName)
-			logger.Info("Created Column: " + colID)
+func makeActionsHandler(db database.Service, boardID string) func(e Event) error {
+	actions := make(map[string]func(db database.Service, e Event) error)
+
+	actions[createColumnEvent] = createColumnAction
+
+	return func(e Event) error {
+		handler, ok := actions[e.Type]
+
+		if !ok {
+			return errInvalidEvent
 		}
-	default:
-		return errInvalidEvent
+
+		handler(db, e)
+		return nil
 	}
+}
+
+func createColumnAction(db database.Service, e Event) error {
+	boardID := e.Payload["board_id"].(string)
+	columnName := e.Payload["column_name"].(string)
+
+	if boardID != "" && columnName != "" {
+		colID, _ := db.CreateColumn(boardID, columnName)
+		logger.Info("Created Column: " + colID)
+	}
+
 	return nil
 }
