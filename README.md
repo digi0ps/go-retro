@@ -1,5 +1,10 @@
 # Go Retro
 
+## About
+
+Backend for Retro built using Go which serves both REST and
+Websockets.
+
 ## Major Tasks
 
 - [x] Setup Go
@@ -12,6 +17,7 @@
 
 ## Minor Tasks
 
+- [x] Dockerise
 - [ ] Log, Recover middleware
 - [ ] Reporting
 - [ ] Better logger
