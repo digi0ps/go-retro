@@ -18,7 +18,7 @@ type MongoConfig struct {
 
 // GetURI gets the config parsed in Go database format
 func (config *MongoConfig) GetURI() (uri string) {
-	uri = fmt.Sprintf("mongodb://%s:%d", config.host, config.port)
+	uri = fmt.Sprintf("mongodb://%s:%s@%s:%d", config.user, config.password, config.host, config.port)
 
 	return
 }
@@ -30,8 +30,10 @@ func (config *MongoConfig) GetDatabase() string {
 
 func loadMongoConfig() *MongoConfig {
 	return &MongoConfig{
-		host: viper.GetString("MONGO_HOST"),
-		port: viper.GetInt("MONGO_PORT"),
-		db:   viper.GetString("MONGO_DB"),
+		host:     viper.GetString("MONGO_HOST"),
+		port:     viper.GetInt("MONGO_PORT"),
+		db:       viper.GetString("MONGO_DB"),
+		user:     viper.GetString("MONGO_USER"),
+		password: viper.GetString("MONGO_PASSWORD"),
 	}
 }

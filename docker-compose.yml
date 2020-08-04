@@ -1,0 +1,26 @@
+version: "3"
+
+services:
+  server:
+    build: .
+    ports:
+      - "5555:8000"
+    environment:
+      SERVER_PORT: 8000
+      MONGO_HOST: mongodb
+      MONGO_DB: go_retro_docker
+      MONGO_USER: goadmin
+      MONGO_PASSWORD: gopassword
+    volumes:
+      - .:/code
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: goadmin
+      MONGO_INITDB_ROOT_PASSWORD: gopassword
+      MONGO_INITDB_DATABASE: go_retro_docker
+    volumes:
+      - /data/db

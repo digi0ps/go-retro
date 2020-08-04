@@ -3,6 +3,15 @@ TARGET = "./out/$(APPNAME)"
 
 all: lint build run
 
+docker.build: .
+	docker-compose build
+
+docker.up:
+	docker-compose up
+
+docker.down:
+	docker-compose down
+
 lint:
 	gofmt -w .
 	golint ./...
