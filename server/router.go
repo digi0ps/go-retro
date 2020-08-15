@@ -19,7 +19,8 @@ func setupRoutes(retroDatabase database.Service, boardHub *websocket.Hub) *mux.R
 	}
 
 	r.HandleFunc("/api/board", handlers.GetBoard).Methods(http.MethodGet)
-	r.HandleFunc("/api/board", handlers.PutBoard).Methods(http.MethodPut)
+	r.HandleFunc("/api/board", handlers.PutBoard).Methods(http.MethodPut, http.MethodOptions)
+	r.Use(CorsMiddleware)
 
 	// Websocket API Handlers
 	socks := websocket.SocketHandler{
