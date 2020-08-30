@@ -17,10 +17,10 @@ lint:
 	golint ./...
 
 test:
-	gotest -v -cover ./...
+	gotest -cover ./...
 
 build:
-	go build -o $(TARGET) ./main.go
+	go build -v -o $(TARGET) ./main.go
 
 run:
 	./$(TARGET)
