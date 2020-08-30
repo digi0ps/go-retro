@@ -10,9 +10,11 @@ import (
 var testConfigVars = map[string]string{
 	"SERVER_PORT": "3000",
 
-	"MONGO_HOST": "local",
-	"MONGO_PORT": "2222",
-	"MONGO_DB":   "test",
+	"MONGO_HOST":     "local",
+	"MONGO_PORT":     "2222",
+	"MONGO_DB":       "test",
+	"MONGO_USER":     "admin",
+	"MONGO_PASSWORD": "password",
 }
 
 func TestLoadConfig(t *testing.T) {
@@ -33,7 +35,7 @@ func TestLoadConfig(t *testing.T) {
 	t.Run("Test database config", func(t *testing.T) {
 		assert.IsType(&MongoConfig{}, Mongo())
 
-		expectedURI := "mongodb://local:2222"
+		expectedURI := "mongodb://admin:password@local:2222"
 		assert.Equal(expectedURI, Mongo().GetURI())
 
 		assert.Equal("test", Mongo().GetDatabase())
