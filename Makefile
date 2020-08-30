@@ -1,7 +1,7 @@
 APPNAME = "go-retro"
 TARGET = "./out/$(APPNAME)"
 
-all: lint build run
+all: fmt lint build test run
 
 docker.build: .
 	docker-compose build
@@ -12,9 +12,12 @@ docker.up:
 docker.down:
 	docker-compose down
 
+fmt:
+	gofmt -w ./
+
 lint:
-	gofmt -w .
 	golint ./...
+	go vet ./...
 
 test:
 	gotest -cover ./...

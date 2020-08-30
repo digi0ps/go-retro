@@ -19,7 +19,8 @@ type MongoDatabase struct {
 func (mdb *MongoDatabase) OpenConnection() error {
 	uri := config.Mongo().GetURI()
 	db := config.Mongo().GetDatabase()
-	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
 	clientOptions := options.Client().ApplyURI(uri)
 
@@ -41,7 +42,8 @@ func (mdb *MongoDatabase) OpenConnection() error {
 
 // CloseConnection closes the connection
 func (mdb *MongoDatabase) CloseConnection() error {
-	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
 	err := mdb.db.Client().Disconnect(ctx)
 
