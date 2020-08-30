@@ -1,5 +1,7 @@
 # Go Retro
 
+![Test and Lint badge](https://github.com/digi0ps/go-retro/workflows/Test%20and%20Lint/badge.svg)
+
 ## About
 
 Backend for Retro built using Go which serves both REST and
