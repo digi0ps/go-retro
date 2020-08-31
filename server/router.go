@@ -3,6 +3,7 @@ package server
 import (
 	"go-retro/database"
 	"go-retro/handler"
+	"go-retro/middlewares"
 	"go-retro/websocket"
 	"net/http"
 
@@ -20,7 +21,7 @@ func setupRoutes(retroDatabase database.Service, boardHub *websocket.Hub) *mux.R
 
 	r.HandleFunc("/api/board", handlers.GetBoard).Methods(http.MethodGet)
 	r.HandleFunc("/api/board", handlers.PutBoard).Methods(http.MethodPut, http.MethodOptions)
-	r.Use(CorsMiddleware)
+	r.Use(middlewares.CorsMiddleware)
 
 	// Websocket API Handlers
 	socks := websocket.SocketHandler{
