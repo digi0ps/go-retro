@@ -1,6 +1,7 @@
 # Go Retro
 
 ![Test and Lint badge](https://github.com/digi0ps/go-retro/workflows/Test%20and%20Lint/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/digi0ps/go-retro/badge.svg?branch=master)](https://coveralls.io/github/digi0ps/go-retro?branch=master)
 
 ## About
 

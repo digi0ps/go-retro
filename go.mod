@@ -6,6 +6,7 @@ require (
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/gorilla/mux v1.7.4
 	github.com/gorilla/websocket v1.4.2
+	github.com/jandelgado/gcov2lcov v1.0.2 // indirect
 	github.com/jinzhu/gorm v1.9.12
 	github.com/mattn/go-colorable v0.1.7 // indirect
 	github.com/rakyll/gotest v0.0.5 // indirect

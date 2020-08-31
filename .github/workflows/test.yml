@@ -29,12 +29,18 @@ jobs:
           fi
           go get -u github.com/rakyll/gotest
           go get -u golang.org/x/lint/golint
+          go get -u github.com/jandelgado/gcov2lcov
 
       - name: Build
         run: make build
 
-      - name: Test
-        run: make test
-
       - name: Lint
         run: make lint
+
+      - name: Test
+        run: make test.coverage
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
